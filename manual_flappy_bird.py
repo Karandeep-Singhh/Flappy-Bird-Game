@@ -4,7 +4,7 @@ import random
 pygame.init()
 WIDTH, HEIGHT = 500,680
 win = pygame.display.set_mode((WIDTH,HEIGHT))
-
+pygame.display.set_caption("Flappy Bird")
 WHITE = (255,255,255)
 
 PIPE_IMG = pygame.transform.scale2x(pygame.image.load(

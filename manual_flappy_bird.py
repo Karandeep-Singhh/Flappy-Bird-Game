@@ -2,11 +2,15 @@ import pygame
 import os
 import random
 pygame.init()
+
+# setting-up pygame window
+
 WIDTH, HEIGHT = 500,680
 win = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Flappy Bird")
 WHITE = (255,255,255)
 
+# importing images
 PIPE_IMG = pygame.transform.scale2x(pygame.image.load(
 	os.path.join('imgs',"pipe.png")))
 BIRD_IMG = [pygame.transform.scale2x(pygame.image.load(
@@ -17,9 +21,11 @@ BASE_IMG = pygame.transform.scale2x(pygame.image.load(
 	os.path.join('imgs',"base.png")))
 
 
+# setting fonts
 STARTER_FONT = pygame.font.SysFont('comicsans', 40)
 POINTS = pygame.font.SysFont('comicsans', 30)
 
+# class to create 'bird' objects
 class Bird:
 
 	MAX_ROTATION = 25
@@ -40,24 +46,31 @@ class Bird:
 
 	def jump(self):
 
-		self.vel = -8.5
-		self.tick_count = 0
-		self.height = self.y
+		self.vel = -8.5 # velocity or the rate of pixels that the bird moves toward (y=0) each time a jump occurs 
+		self.tick_count = 0 # this is to keep track of the frames so that different images of the bird flapping its wings can be shown
+		self.height = self.y 
 
 	def move(self):
 
 		self.tick_count += 1
-
-		displacement = self.vel*(self.tick_count) + 0.5*(3)*(self.tick_count)**2
-
+		# 'displacement is just as the displacement in physics (d = ut + (1/2)at^2)),
+		# here, 'self.vel' is 'u'(initial velocity) and 'tick_count' is the time since the jump happened
+		# also, acceleration is set '3', you can play around with it to set the speed of the jumps
+		displacement = self.vel*(self.tick_count) + 0.5*(3)*(self.tick_count)**2 
+		# this statement brings the bird down, acting as 'gravity'
+		# you can also change the values(from 9.5) to something else( >0)
 		if displacement >=9.5:
 			displacement = 9.5
-
+		# this is to fine tune the motion of the bird as it gives user some time to see the and decide
+		# the next moce, because it keeps the bird in the air after the jump 
 		if displacement < 0:
 			displacement -= 5
 
-		self.y = self.y + displacement
-
+		self.y = self.y + displacement 
+		
+		#to make the bird tilt upwards or downwards according to its motion(going upwards shows bird facing up &
+		# going downwards shows bird facing downwards
+		
 		if displacement < 0 or self.y < self.height + 50:
 			if self.tilt < self.MAX_ROTATION:
 				self.tilt = self.MAX_ROTATION
@@ -86,13 +99,12 @@ class Bird:
 		rotated_img = pygame.transform.rotate(self.img, self.tilt)
 		new_rect = rotated_img.get_rect(center = self.img.get_rect(topleft = (self.x,self.y)).center)
 		win.blit(rotated_img,new_rect.topleft)
-        #blitRotateCenter(win,self.img,(self.x,self.y),self.tilt)
 	
 	def get_mask(self):
 		return pygame.mask.from_surface(self.img)
 
 class Pipe:
-	GAP = 200
+	GAP = 200 # gap between the pipes , you can tweak it also in contrast to velocity of the jump mentioned above
 
 	def __init__(self,x,MOTION):
 		self.x = x
@@ -126,13 +138,12 @@ class Pipe:
 		top_mask = pygame.mask.from_surface(self.PIPE_TOP)
 		bottom_mask = pygame.mask.from_surface(self.PIPE_BOTTOM)
 
-		# i don't exactly know how offset works
 
 		top_offset = (self.x - bird.x,self.top - round(bird.y))
 		bottom_offset = (self.x - bird.x,self.bottom - round(bird.y))
 
-		b_point = bird_mask.overlap(bottom_mask,bottom_offset) # if the co-ordinate 'bottom_offset' exist in 'bottom_mask'
-		t_point = bird_mask.overlap(top_mask,top_offset)
+		b_point = bird_mask.overlap(bottom_mask,bottom_offset) # if the co-ordinate 'bottom_offset' exist in 'bottom_mask' otherwise returns 'None' 
+		t_point = bird_mask.overlap(top_mask,top_offset) # if the co-ordinate 'top_offset' exist in 'top_mask' otherwise returns 'None' 
 
 		if t_point or b_point:
 			return True
@@ -153,7 +164,7 @@ class Base:
 
 		self.x1 -= self.VEL
 		self.x2 -= self.VEL
-
+		# this statement is to make the base image repeat moving form right to show as if base is moving
 		if self.x1 + self.WIDTH < 0:
 			self.x1 = self.x2 + self.WIDTH
 		if self.x2 + self.WIDTH < 0:
